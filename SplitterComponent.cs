@@ -19,6 +19,7 @@ namespace LiveSplit.LightFall {
 		private int currentSplit = -1, lastLogCheck;
 		private bool hasLog = false, lastReachedEnd = false;
 		private Level lastLevel;
+		private float lastElapsed;
 
 		public SplitterComponent(LiveSplitState state) {
 			mem = new SplitterMemory();
@@ -54,15 +55,23 @@ namespace LiveSplit.LightFall {
 
 			if (currentSplit == -1) {
 				Level nextLevel = mem.NextLevel();
-				shouldSplit = nextLevel == Level.A0Prologue && lastLevel != nextLevel;
+				shouldSplit = (nextLevel == Level.A0Prologue || nextLevel == Level.A1L01) && lastLevel != nextLevel;
 				lastLevel = nextLevel;
 			} else {
 				Level currentLevel = mem.CurrentLevel();
 				bool reachedEnd = mem.ReachedEnd();
-				shouldSplit = !lastReachedEnd && reachedEnd;
-				lastReachedEnd = reachedEnd;
+				float elapsed = mem.GameTime();
 
-				Model.CurrentState.IsGameTimePaused = Model.CurrentState.CurrentPhase != TimerPhase.Running || mem.LevelLoading() != Level.NONE;
+				shouldSplit = !lastReachedEnd && reachedEnd;
+
+				if (elapsed > 0) {
+					Model.CurrentState.SetGameTime(TimeSpan.FromSeconds(elapsed));
+				}
+
+				Model.CurrentState.IsGameTimePaused = Model.CurrentState.CurrentPhase != TimerPhase.Running || mem.LevelLoading() != Level.NONE || (elapsed > 0 && elapsed == lastElapsed);
+
+				lastReachedEnd = reachedEnd;
+				lastElapsed = elapsed;
 			}
 
 			HandleSplit(shouldSplit, false);
@@ -100,6 +109,7 @@ namespace LiveSplit.LightFall {
 						case LogObject.NextLevel: curr = mem.NextLevel().ToString(); break;
 						case LogObject.LevelLoading: curr = mem.LevelLoading().ToString(); break;
 						case LogObject.ReachedEnd: curr = mem.ReachedEnd().ToString(); break;
+						case LogObject.GameTime: curr = mem.GameTime().ToString("0"); break;
 						default: curr = string.Empty; break;
 					}
 

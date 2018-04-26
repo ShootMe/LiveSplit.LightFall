@@ -31,6 +31,7 @@
 		CurrentLevel,
 		NextLevel,
 		LevelLoading,
-		ReachedEnd
+		ReachedEnd,
+		GameTime
 	}
 }

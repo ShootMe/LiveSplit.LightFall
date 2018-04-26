@@ -29,6 +29,9 @@ namespace LiveSplit.LightFall {
 		public bool ReachedEnd() {
 			return Manager.Read<bool>(Program, -0x38, 0x34);
 		}
+		public float GameTime() {
+			return Manager.Read<float>(Program, -0x24, 0x18);
+		}
 		public bool HookProcess() {
 			IsHooked = Program != null && !Program.HasExited;
 			if (!IsHooked && DateTime.Now > LastHooked.AddSeconds(1)) {
