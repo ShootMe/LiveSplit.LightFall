@@ -18,6 +18,7 @@ namespace LiveSplit.LightFall {
 		private SplitterMemory mem;
 		private int currentSplit = -1, lastLogCheck;
 		private bool hasLog = false, lastReachedEnd = false;
+		private Level lastLevel;
 
 		public SplitterComponent(LiveSplitState state) {
 			mem = new SplitterMemory();
@@ -52,8 +53,11 @@ namespace LiveSplit.LightFall {
 			bool shouldSplit = false;
 
 			if (currentSplit == -1) {
-				shouldSplit = false;
+				Level nextLevel = mem.NextLevel();
+				shouldSplit = nextLevel == Level.A0Prologue && lastLevel != nextLevel;
+				lastLevel = nextLevel;
 			} else {
+				Level currentLevel = mem.CurrentLevel();
 				bool reachedEnd = mem.ReachedEnd();
 				shouldSplit = !lastReachedEnd && reachedEnd;
 				lastReachedEnd = reachedEnd;
