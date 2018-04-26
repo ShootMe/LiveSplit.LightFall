@@ -1,0 +1,9 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/LiveSplit.LightFall/v15
+/bin
+/Components/LiveSplit.LightFall.exe
+/obj
+/LiveSplit.LightFall.csproj.user
