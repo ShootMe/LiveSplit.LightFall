@@ -30,7 +30,10 @@ namespace LiveSplit.LightFall {
 			return Manager.Read<bool>(Program, -0x38, 0x34);
 		}
 		public float GameTime() {
-			return Manager.Read<float>(Program, -0x24, 0x18);
+			IntFloat time = default(IntFloat);
+			time.FloatVal = Manager.Read<float>(Program, -0x24, 0x18);
+			time.IntVal ^= 230887;
+			return time.FloatVal;
 		}
 		public bool HookProcess() {
 			IsHooked = Program != null && !Program.HasExited;

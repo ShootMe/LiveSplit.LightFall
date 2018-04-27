@@ -1,4 +1,6 @@
-﻿namespace LiveSplit.LightFall {
+﻿using System.Runtime.InteropServices;
+
+namespace LiveSplit.LightFall {
 	public enum Level {
 		NONE,
 		SplashScreen = 10,
@@ -33,5 +35,12 @@
 		LevelLoading,
 		ReachedEnd,
 		GameTime
+	}
+	[StructLayout(LayoutKind.Explicit)]
+	public struct IntFloat {
+		[FieldOffset(0)]
+		public int IntVal;
+		[FieldOffset(0)]
+		public float FloatVal;
 	}
 }

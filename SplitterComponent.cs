@@ -17,9 +17,9 @@ namespace LiveSplit.LightFall {
 		private Dictionary<LogObject, string> currentValues = new Dictionary<LogObject, string>();
 		private SplitterMemory mem;
 		private int currentSplit = -1, lastLogCheck;
-		private bool hasLog = false, lastReachedEnd = false;
+		private bool hasLog = false, lastReachedEnd = false, shouldIncreaseTimer = false;
 		private Level lastLevel;
-		private float lastElapsed;
+		private float lastElapsed = 0, totalElapsed = 0;
 
 		public SplitterComponent(LiveSplitState state) {
 			mem = new SplitterMemory();
@@ -64,11 +64,21 @@ namespace LiveSplit.LightFall {
 
 				shouldSplit = !lastReachedEnd && reachedEnd;
 
-				if (elapsed > 0) {
-					Model.CurrentState.SetGameTime(TimeSpan.FromSeconds(elapsed));
+				if (shouldSplit) {
+					shouldIncreaseTimer = true;
 				}
 
-				Model.CurrentState.IsGameTimePaused = Model.CurrentState.CurrentPhase != TimerPhase.Running || mem.LevelLoading() != Level.NONE || (elapsed > 0 && elapsed == lastElapsed);
+				if (elapsed > 0 || lastElapsed == elapsed) {
+					Model.CurrentState.SetGameTime(TimeSpan.FromSeconds(elapsed + totalElapsed));
+				}
+
+				if (shouldIncreaseTimer && elapsed < lastElapsed) {
+					totalElapsed += lastElapsed;
+					shouldIncreaseTimer = false;
+					elapsed = lastElapsed;
+				}
+
+				Model.CurrentState.IsGameTimePaused = Model.CurrentState.CurrentPhase != TimerPhase.Running || mem.LevelLoading() != Level.NONE || elapsed == lastElapsed;
 
 				lastReachedEnd = reachedEnd;
 				lastElapsed = elapsed;
@@ -109,7 +119,7 @@ namespace LiveSplit.LightFall {
 						case LogObject.NextLevel: curr = mem.NextLevel().ToString(); break;
 						case LogObject.LevelLoading: curr = mem.LevelLoading().ToString(); break;
 						case LogObject.ReachedEnd: curr = mem.ReachedEnd().ToString(); break;
-						case LogObject.GameTime: curr = mem.GameTime().ToString("0"); break;
+						case LogObject.GameTime: curr = mem.GameTime().ToString(); break;
 						default: curr = string.Empty; break;
 					}
 
@@ -137,6 +147,7 @@ namespace LiveSplit.LightFall {
 		}
 		public void OnReset(object sender, TimerPhase e) {
 			currentSplit = -1;
+			totalElapsed = 0;
 			Model.CurrentState.IsGameTimePaused = true;
 			WriteLog("---------Reset----------------------------------");
 		}
