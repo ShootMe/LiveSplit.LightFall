@@ -36,7 +36,11 @@ namespace LiveSplit.LightFall {
 		public float GameTime() {
 			//Singletons.gameMode.runTime
 			IntFloat time = default(IntFloat);
-			time.FloatVal = Singletons.Read<float>(Program, -0x28, 0x18);
+			byte[] data = Singletons.ReadBytes(Program, 8, -0x28, 0x18);
+			time.FloatVal = BitConverter.ToSingle(data, 0);
+			if (time.IntVal == 230887) {
+				time.FloatVal = BitConverter.ToSingle(data, 4);
+			}
 			time.IntVal ^= 230887;
 			return time.FloatVal;
 		}
